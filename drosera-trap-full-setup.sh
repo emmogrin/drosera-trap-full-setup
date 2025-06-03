@@ -19,22 +19,18 @@ apt update && apt install curl wget git unzip jq nano build-essential lz4 -y
 
 echo "📥 Installing Foundry..."
 curl -L https://foundry.paradigm.xyz | bash
-source ~/.bashrc
-foundryup
+export PATH="$HOME/.foundry/bin:$PATH"
+foundryup || echo "⚠️ foundryup failed — try 'source ~/.bashrc' manually."
 
 echo "📥 Installing Drosera CLI..."
 curl -L https://app.drosera.io/install | bash
-source ~/.bashrc
-droseraup
+export PATH="$HOME/.drosera/bin:$PATH"
+droseraup || echo "⚠️ droseraup failed — try 'source ~/.bashrc' manually."
 
 echo "📁 Setting up Trap directory..."
-mkdir my-drosera-trap
+forge init my-drosera-trap -t drosera-network/trap-foundry-template
 cd my-drosera-trap
-git config --global user.email "youremail@example.com"
-git config --global user.name "yourgithubusername"
-forge init -t drosera-network/trap-foundry-template
 
-echo "📦 Installing Drosera contracts and remapping..."
 echo 'drosera-contracts=lib/contracts' > remappings.txt
 forge install drosera-network/contracts
 
@@ -81,10 +77,7 @@ response_function = "respondWithDiscordName(string)"
 EOF
 
 echo "🔨 Building contract..."
-if ! forge build; then
-    echo "❌ Build failed. Fix errors above before continuing."
-    exit 1
-fi
+forge build || { echo "❌ Build failed. Fix errors above."; exit 1; }
 
 echo "🧪 Testing Trap with dryrun..."
 drosera dryrun
