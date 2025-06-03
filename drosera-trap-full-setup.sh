@@ -2,7 +2,6 @@
 
 clear
 echo "⚙️ Drosera Trap Auto Setup - Saint Khen (@admirkhen)"
-
 echo "🔐 Enter your EVM private key (no 0x):"
 read -p "> " evm_key
 
@@ -16,23 +15,23 @@ echo "🏦 Enter your wallet address (for verification check):"
 read -p "> " wallet_address
 
 echo "📦 Installing dependencies..."
-apt update && apt install curl wget git unzip jq build-essential lz4 -y
+apt update && apt install curl wget git unzip jq nano build-essential lz4 -y
 
 echo "📥 Installing Foundry..."
 curl -L https://foundry.paradigm.xyz | bash
-source ~/.bashrc && foundryup
+export PATH="$HOME/.foundry/bin:$PATH"
+foundryup || echo "⚠️ foundryup failed — try 'source ~/.bashrc' and rerun if needed."
 
 echo "📥 Installing Drosera CLI..."
 curl -L https://app.drosera.io/install | bash
-source ~/.bashrc && droseraup
+export PATH="$HOME/.drosera/bin:$PATH"
+droseraup || echo "⚠️ droseraup failed — try 'source ~/.bashrc' and rerun if needed."
 
 echo "📁 Setting up Trap directory..."
-mkdir -p my-drosera-trap && cd my-drosera-trap
-forge init -t drosera-network/trap-foundry-template
-cd my-drosera-trap || exit 1
+forge init my-drosera-trap -t drosera-network/trap-foundry-template
+cd my-drosera-trap
 
 echo "📄 Creating Trap.sol with your Discord username..."
-mkdir -p src
 cat > src/Trap.sol <<EOF
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
