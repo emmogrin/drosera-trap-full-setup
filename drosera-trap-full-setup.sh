@@ -1,49 +1,41 @@
 #!/bin/bash
 
-# Drosera Trap Full Setup (Proot-distro Compatible)
-# Saint Khen @admirkhen
+clear
+echo "⚙️ Drosera Trap Auto Setup - Saint Khen (@admirkhen)"
+echo "🔐 Enter your EVM private key (no 0x):"
+read -p "> " evm_key
 
-# Update system
-apt-get update && apt-get upgrade -y
+echo "🌐 Enter your Ethereum Holesky RPC URL (e.g., from Alchemy or QuickNode):"
+read -p "> " rpc_url
 
-# Install required packages
-apt install curl git wget build-essential make gcc nano automake autoconf \
-tmux htop libgbm1 pkg-config libssl-dev libleveldb-dev tar clang \
-bsdmainutils ncdu unzip jq -y
+echo "💬 Enter your Discord username (e.g., admirkhen#1234):"
+read -p "> " discord_username
 
-# Install Drosera CLI
-curl -L https://app.drosera.io/install | bash
-source ~/.bashrc || source ~/.profile
-droseraup
+echo "🏦 Enter your wallet address (for verification check):"
+read -p "> " wallet_address
 
-# Install Foundry
+echo "📦 Installing dependencies..."
+apt update && apt install curl wget git unzip jq nano build-essential lz4 -y
+
+echo "📥 Installing Foundry..."
 curl -L https://foundry.paradigm.xyz | bash
-source ~/.bashrc || source ~/.profile
+source ~/.bashrc
 foundryup
 
-# Install Bun
-curl -fsSL https://bun.sh/install | bash
-source ~/.bashrc || source ~/.profile
+echo "📥 Installing Drosera CLI..."
+curl -L https://app.drosera.io/install | bash
+source ~/.bashrc
+droseraup
 
-# Clone trap repo
-mkdir my-drosera-trap && cd my-drosera-trap
-git config --global user.email "Github_Email"
-git config --global user.name "Github_Username"
+echo "📁 Setting up Trap directory..."
+mkdir my-drosera-trap
+cd my-drosera-trap
+git config --global user.email "youremail@example.com"
+git config --global user.name "yourgithubusername"
 forge init -t drosera-network/trap-foundry-template
 
-# Install dependencies & build trap
-bun install
-forge build
-
-# Deploy trap
-# Replace PRIVATE_KEY with your private key
-DROSERA_PRIVATE_KEY=PRIVATE_KEY drosera apply --eth-rpc-url https://ethereum-holesky-rpc.publicnode.com
-
-# Check trap dryrun
-drosera dryrun
-
-# Add custom trap to submit Discord name
-cat <<EOF > src/Trap.sol
+echo "📄 Creating Trap.sol with your Discord username..."
+cat > src/Trap.sol <<EOF
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
@@ -55,7 +47,7 @@ interface IMockResponse {
 
 contract Trap is ITrap {
     address public constant RESPONSE_CONTRACT = 0x4608Afa7f277C8E0BE232232265850d1cDeB600E;
-    string constant discordName = "DISCORD_USERNAME";
+    string constant discordName = "${discord_username}";
 
     function collect() external view returns (bytes memory) {
         bool active = IMockResponse(RESPONSE_CONTRACT).isActive();
@@ -72,23 +64,24 @@ contract Trap is ITrap {
 }
 EOF
 
-# Update drosera.toml config
-cat <<EOF > drosera.toml
+echo "🛠️ Writing drosera.toml config..."
+cat > drosera.toml <<EOF
 path = "out/Trap.sol/Trap.json"
 response_contract = "0x4608Afa7f277C8E0BE232232265850d1cDeB600E"
 response_function = "respondWithDiscordName(string)"
 EOF
 
-# Rebuild and deploy new trap
+echo "🔨 Building contract..."
 forge build
+
+echo "🧪 Testing Trap with dryrun..."
 drosera dryrun
-DROSERA_PRIVATE_KEY=PRIVATE_KEY drosera apply
 
-# Verify if trap is responding
-source ~/.bashrc || source ~/.profile
-cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E "isResponder(address)(bool)" YOUR_WALLET_ADDRESS --rpc-url https://ethereum-holesky-rpc.publicnode.com
+echo "🚀 Deploying Trap to Holesky..."
+DROSERA_PRIVATE_KEY=$evm_key drosera apply --eth-rpc-url $rpc_url
 
-# View all submitted Discord names
-cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E "getDiscordNamesBatch(uint256,uint256)(string[])" 0 2000 --rpc-url https://ethereum-holesky-rpc.publicnode.com
+echo "🧾 Verifying isResponder() for your wallet..."
+source ~/.bashrc
+cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E "isResponder(address)(bool)" $wallet_address --rpc-url $rpc_url
 
-echo "✅ Completed by Saint Khen @admirkhen — Trap deployed & Discord name submitted on-chain."
+echo "✅ Done! Your Discord name should now be immortalized on-chain."
