@@ -1,43 +1,49 @@
 #!/bin/bash
 
-# ──────────────── USER CONFIG ────────────────
-GITHUB_EMAIL="youremail@gmail.com"
-GITHUB_USERNAME="admirkhen"
-DISCORD_USERNAME="admirkhen"                         # 🔥 Discord name to immortalize
-PRIVATE_KEY="your_private_key_here"                 # 🔐 Must be funded Holesky EVM key
-OWNER_ADDRESS="0xYourPublicWallet"                  # 📮 Wallet that owns the trap
-RPC_URL="https://ethereum-holesky-rpc.publicnode.com"
-# ─────────────────────────────────────────────
+# Drosera Trap Full Setup (Proot-distro Compatible)
+# Saint Khen @admirkhen
 
-echo "🔧 Installing dependencies (No Docker needed)..."
-sudo apt-get update && sudo apt-get upgrade -y
-sudo apt install curl git wget build-essential unzip nano jq libssl-dev pkg-config libclang-dev libleveldb-dev tmux -y
+# Update system
+apt-get update && apt-get upgrade -y
 
-echo "📦 Installing Foundry..."
-curl -L https://foundry.paradigm.xyz | bash
-source /root/.bashrc
-foundryup
+# Install required packages
+apt install curl git wget build-essential make gcc nano automake autoconf \
+tmux htop libgbm1 pkg-config libssl-dev libleveldb-dev tar clang \
+bsdmainutils ncdu unzip jq -y
 
-echo "📦 Installing Bun..."
-curl -fsSL https://bun.sh/install | bash
-source /root/.bashrc
-
-echo "📦 Installing Drosera..."
+# Install Drosera CLI
 curl -L https://app.drosera.io/install | bash
-source /root/.bashrc
+source ~/.bashrc || source ~/.profile
 droseraup
 
-echo "📁 Setting up trap project folder..."
-mkdir -p my-drosera-trap && cd my-drosera-trap
-git config --global user.email "$GITHUB_EMAIL"
-git config --global user.name "$GITHUB_USERNAME"
+# Install Foundry
+curl -L https://foundry.paradigm.xyz | bash
+source ~/.bashrc || source ~/.profile
+foundryup
+
+# Install Bun
+curl -fsSL https://bun.sh/install | bash
+source ~/.bashrc || source ~/.profile
+
+# Clone trap repo
+mkdir my-drosera-trap && cd my-drosera-trap
+git config --global user.email "Github_Email"
+git config --global user.name "Github_Username"
 forge init -t drosera-network/trap-foundry-template
 
-echo "📦 Installing Bun deps..."
+# Install dependencies & build trap
 bun install
+forge build
 
-echo "🔧 Writing Trap.sol (Discord Cadet)..."
-cat > src/Trap.sol <<EOF
+# Deploy trap
+# Replace PRIVATE_KEY with your private key
+DROSERA_PRIVATE_KEY=PRIVATE_KEY drosera apply --eth-rpc-url https://ethereum-holesky-rpc.publicnode.com
+
+# Check trap dryrun
+drosera dryrun
+
+# Add custom trap to submit Discord name
+cat <<EOF > src/Trap.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
@@ -49,7 +55,7 @@ interface IMockResponse {
 
 contract Trap is ITrap {
     address public constant RESPONSE_CONTRACT = 0x4608Afa7f277C8E0BE232232265850d1cDeB600E;
-    string constant discordName = "$DISCORD_USERNAME";
+    string constant discordName = "DISCORD_USERNAME";
 
     function collect() external view returns (bytes memory) {
         bool active = IMockResponse(RESPONSE_CONTRACT).isActive();
@@ -66,31 +72,23 @@ contract Trap is ITrap {
 }
 EOF
 
-echo "📝 Updating drosera.toml..."
-cat > drosera.toml <<EOF
+# Update drosera.toml config
+cat <<EOF > drosera.toml
 path = "out/Trap.sol/Trap.json"
 response_contract = "0x4608Afa7f277C8E0BE232232265850d1cDeB600E"
 response_function = "respondWithDiscordName(string)"
 EOF
 
-echo "🔨 Building contract..."
+# Rebuild and deploy new trap
 forge build
-
-echo "🧪 Dry run check..."
 drosera dryrun
+DROSERA_PRIVATE_KEY=PRIVATE_KEY drosera apply
 
-echo "🚀 Deploying trap with Discord Cadet name..."
-DROSERA_PRIVATE_KEY=$PRIVATE_KEY drosera apply --eth-rpc-url $RPC_URL <<< "ofc"
+# Verify if trap is responding
+source ~/.bashrc || source ~/.profile
+cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E "isResponder(address)(bool)" YOUR_WALLET_ADDRESS --rpc-url https://ethereum-holesky-rpc.publicnode.com
 
-echo "🧬 Verifying if your address is now a responder..."
-cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E \
-  "isResponder(address)(bool)" $OWNER_ADDRESS \
-  --rpc-url $RPC_URL
+# View all submitted Discord names
+cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E "getDiscordNamesBatch(uint256,uint256)(string[])" 0 2000 --rpc-url https://ethereum-holesky-rpc.publicnode.com
 
-echo "📜 Fetching all on-chain Discord usernames..."
-cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E \
-  "getDiscordNamesBatch(uint256,uint256)(string[])" 0 2000 \
-  --rpc-url $RPC_URL
-
-echo -e "\n✅ ALL DONE. Your trap is deployed and your Discord '$DISCORD_USERNAME' is now immortalized on-chain. 🔥"
-echo -e "\n💎 Saint Khen @admirkhen blesses this deployment."
+echo "✅ Completed by Saint Khen @admirkhen — Trap deployed & Discord name submitted on-chain."
