@@ -2,6 +2,7 @@
 
 clear
 echo "⚙️ Drosera Trap Auto Setup - Saint Khen (@admirkhen)"
+
 echo "🔐 Enter your EVM private key (no 0x):"
 read -p "> " evm_key
 
@@ -15,26 +16,23 @@ echo "🏦 Enter your wallet address (for verification check):"
 read -p "> " wallet_address
 
 echo "📦 Installing dependencies..."
-apt update && apt install curl wget git unzip jq nano build-essential lz4 -y
+apt update && apt install curl wget git unzip jq build-essential lz4 -y
 
 echo "📥 Installing Foundry..."
 curl -L https://foundry.paradigm.xyz | bash
-source ~/.bashrc
-foundryup
+source ~/.bashrc && foundryup
 
 echo "📥 Installing Drosera CLI..."
 curl -L https://app.drosera.io/install | bash
-source ~/.bashrc
-droseraup
+source ~/.bashrc && droseraup
 
 echo "📁 Setting up Trap directory..."
-mkdir my-drosera-trap
-cd my-drosera-trap
-git config --global user.email "youremail@example.com"
-git config --global user.name "yourgithubusername"
+mkdir -p my-drosera-trap && cd my-drosera-trap
 forge init -t drosera-network/trap-foundry-template
+cd my-drosera-trap || exit 1
 
 echo "📄 Creating Trap.sol with your Discord username..."
+mkdir -p src
 cat > src/Trap.sol <<EOF
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
@@ -81,7 +79,6 @@ echo "🚀 Deploying Trap to Holesky..."
 DROSERA_PRIVATE_KEY=$evm_key drosera apply --eth-rpc-url $rpc_url
 
 echo "🧾 Verifying isResponder() for your wallet..."
-source ~/.bashrc
 cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E "isResponder(address)(bool)" $wallet_address --rpc-url $rpc_url
 
 echo "✅ Done! Your Discord name should now be immortalized on-chain."
