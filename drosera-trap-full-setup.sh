@@ -3,49 +3,64 @@
 clear
 echo "⚙️ Drosera Trap Auto Setup - Saint Khen (@admirkhen)"
 
-echo "🔐 Enter your EVM private key (no 0x):"
-read -p "> " evm_key
-
-echo "🌐 Enter your Ethereum Holesky RPC URL (e.g., from Alchemy or QuickNode):"
-read -p "> " rpc_url
-
-echo "💬 Enter your Discord username (e.g., admirkhen#1234):"
-read -p "> " discord_username
-
-echo "🏦 Enter your wallet address (for verification check):"
-read -p "> " wallet_address
-
-echo "📦 Installing dependencies..."
-sudo apt update && sudo apt install curl wget git unzip jq nano build-essential lz4 -y
-
-echo "📥 Installing Foundry..."
-curl -L https://foundry.paradigm.xyz | bash
-
-echo "🔄 Reloading environment..."
-source ~/.bashrc
-
-echo "⚙️ Running foundryup to install Foundry toolchain..."
-foundryup || { echo "❌ foundryup failed. Please run 'source ~/.bashrc' manually and rerun this script."; exit 1; }
-
-echo "📥 Installing Drosera CLI..."
-curl -L https://app.drosera.io/install | bash
-
-echo "🔄 Reloading environment..."
-source ~/.bashrc
-
-echo "⚙️ Running droseraup to install Drosera CLI..."
-droseraup || { echo "❌ droseraup failed. Please run 'source ~/.bashrc' manually and rerun this script."; exit 1; }
-
-if [ -d "my-drosera-trap" ]; then
-  echo "📁 Directory 'my-drosera-trap' already exists. Removing it for a clean setup..."
-  rm -rf my-drosera-trap
+# Check if root (optional safety)
+if [ "$EUID" -eq 0 ]; then
+  echo "⚠️ You're running as root. Foundry & Drosera install better as a non-root user."
+  echo "You can continue, but PATH issues may occur. Proceeding anyway..."
 fi
 
-echo "📁 Creating Trap directory..."
-forge init my-drosera-trap -t drosera-network/trap-foundry-template
-cd my-drosera-trap || { echo "❌ Failed to enter my-drosera-trap directory."; exit 1; }
+# Ask user input
+read -p "🔐 Enter your EVM private key (no 0x): " evm_key
+read -p "🌐 Enter your Ethereum Holesky RPC URL: " rpc_url
+read -p "💬 Enter your Discord username (e.g. admirkhen#1234): " discord_username
+read -p "🏦 Enter your wallet address: " wallet_address
 
-echo "📄 Creating Trap.sol with your Discord username..."
+# Install packages
+echo "📦 Installing dependencies..."
+apt update && apt install curl wget git unzip jq nano build-essential lz4 -y
+
+# Install Foundry
+echo "📥 Installing Foundry..."
+curl -L https://foundry.paradigm.xyz | bash
+export PATH="$HOME/.foundry/bin:$PATH"
+source ~/.bashrc 2>/dev/null
+
+echo "🔄 Installing Foundry toolchain..."
+if command -v foundryup >/dev/null 2>&1; then
+  foundryup
+else
+  echo "❌ foundryup not found in PATH. Trying manual path export..."
+  export PATH="$HOME/.foundry/bin:$PATH"
+  source ~/.bashrc
+  command -v foundryup >/dev/null 2>&1 || { echo "❌ still can't find foundryup. Try restarting shell."; exit 1; }
+  foundryup
+fi
+
+# Install Drosera CLI
+echo "📥 Installing Drosera CLI..."
+curl -L https://app.drosera.io/install | bash
+export PATH="$HOME/.drosera/bin:$PATH"
+source ~/.bashrc 2>/dev/null
+
+echo "🔄 Installing Drosera CLI toolchain..."
+if command -v droseraup >/dev/null 2>&1; then
+  droseraup
+else
+  echo "❌ droseraup not found in PATH. Trying manual path export..."
+  export PATH="$HOME/.drosera/bin:$PATH"
+  source ~/.bashrc
+  command -v droseraup >/dev/null 2>&1 || { echo "❌ still can't find droseraup. Try restarting shell."; exit 1; }
+  droseraup
+fi
+
+# Set up directory
+echo "📁 Setting up Trap directory..."
+[ -d "my-drosera-trap" ] && rm -rf my-drosera-trap
+forge init my-drosera-trap -t drosera-network/trap-foundry-template || { echo "❌ forge init failed."; exit 1; }
+cd my-drosera-trap || exit 1
+
+# Create Trap.sol
+echo "📄 Creating Trap.sol..."
 cat > src/Trap.sol <<EOF
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
@@ -75,23 +90,28 @@ contract Trap is ITrap {
 }
 EOF
 
-echo "🛠️ Writing drosera.toml config..."
+# Write drosera.toml
+echo "🛠️ Writing drosera.toml..."
 cat > drosera.toml <<EOF
 path = "out/Trap.sol/Trap.json"
 response_contract = "0x4608Afa7f277C8E0BE232232265850d1cDeB600E"
 response_function = "respondWithDiscordName(string)"
 EOF
 
+# Build
 echo "🔨 Building contract..."
-forge build || { echo "❌ Build failed. Fix errors above before continuing."; exit 1; }
+forge build || { echo "❌ Build failed."; exit 1; }
 
-echo "🧪 Testing Trap with dryrun..."
-drosera dryrun || echo "⚠️ Dryrun failed or returned errors."
+# Dryrun
+echo "🧪 Testing with drosera dryrun..."
+drosera dryrun || echo "⚠️ dryrun failed (non-blocking)."
 
-echo "🚀 Deploying Trap to Holesky..."
+# Deploy
+echo "🚀 Deploying Trap..."
 DROSERA_PRIVATE_KEY=$evm_key drosera apply --eth-rpc-url $rpc_url || { echo "❌ Deployment failed."; exit 1; }
 
-echo "🧾 Verifying isResponder() for your wallet..."
-cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E "isResponder(address)(bool)" $wallet_address --rpc-url $rpc_url || echo "⚠️ Verification call failed."
+# Verify
+echo "🧾 Verifying with isResponder()..."
+cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E "isResponder(address)(bool)" $wallet_address --rpc-url $rpc_url || echo "⚠️ Verification failed."
 
-echo "✅ Done! Your Discord name should now be immortalized on-chain."
+echo "✅ All done! Your Discord name trap is now deployed to Holesky."
