@@ -1,116 +1,121 @@
-# Drosera Trap Full Setup
+# 🧡🧡🧡🧡🧡🧡 Drosera Trap Full Setup🧡🧡🧡🧡🧡🧡🧡🧡🧡
 
-Automated scripts to build, deploy, and run your Drosera Trap with Discord immortalization and Operator node setup.
+Welcome to the official **Drosera Trap Full Setup** repo.
 
----
-
-## Overview
-
-This repository contains three scripts that simplify the entire Drosera Trap + Operator setup:
-
-- `trap-setup.sh` — Build and deploy your custom Trap contract with your Discord username immortalized on-chain.
-- `operator-setup.sh` — Install and launch the Drosera Operator node (supports Docker or SystemD).
-- `verify.sh` — Verify that your Discord is immortalized and the Trap contract is registered correctly.
+Saint Khen (@admirkhen) blesses you with immortality.  
+Go forth and earn your **Cadet role** on Discord 🛡️
 
 ---
 
-## Prerequisites
+## 🧱 What Is This?
 
-- A fresh Ubuntu 20.04+ VPS or compatible Linux environment
-- Your **Trap EVM private key** (64 hex characters)
-- Ethereum RPC URL (Alchemy, QuickNode, or similar for Holesky network)
-- GitHub username and email (used for git config during build)
-- Your Operator address (`0x...` format)
-- VPS public IP (for P2P connections)
-- Discord username (e.g. `admirkhen#1234`)
+This repo helps you:
+
+- ✅ Deploy your first Trap (must be done first)
+- 🧑‍💻 Setup Drosera Operator (depends on trap being deployed)
+- 🔗 Immortalize your Discord username on-chain
+- 🏅 Earn the exclusive **Cadet role**
 
 ---
 
-## Usage
+## 📁 Files🧡
 
-1. **Clone this repo**
+| Script | Purpose |
+|--------|---------|
+| `trap-setup.sh`            | Deploy your first Trap (required before operator) |
+| `drosera-operator-full.sh` | Setup Drosera Operator (runs the trap) |
+| `immortalize_discord.sh`   | Submit your Discord username and get Cadet role |
+| `verify.sh`                | Check if Discord name is on-chain |
+| `drosera.toml`             | Config file (auto-edited by scripts) |
 
-   ```bash
-   git clone https://github.com/emmogrin/drosera-trap-full-setup.git
-   cd drosera-trap-full-setup
-   chmod +x *.sh
-   ```
-   2. Run Trap setup
+---
 
-This builds and deploys your custom Trap contract:
+## 🚀 Full Setup Guide (Ubuntu VPS)
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/emmogrin/drosera-trap-full-setup.git
+cd drosera-trap-full-setup
 ```
+
+# 2. Deploy your Trap (must be first!)
+```
+chmod +x trap-setup.sh
 ./trap-setup.sh
 ```
 
-3. Run Operator setup
 
-This installs and starts the Drosera Operator node. You will be prompted to choose between Docker or SystemD:
+# 3. Setup Drosera Operator (after trap is deployed)
 ```
-./operator-setup.sh
-```
-
-4. Verify your Trap
-
-Check if your Discord is immortalized and Trap is registered:
-```
-./verify.sh
-
+chmod +x drosera-operator-full.sh
+./drosera-operator-full.sh
 ```
 
+# 4. Immortalize your Discord Name (earn Cadet role)
+```
+chmod +x immortalize_discord.sh
+./immortalize_discord.sh
+```
 
+⚠️ You need your EVM private key and some Holesky ETH
+Get ETH from: https://holeskyfaucet.com
+
+
+
+✅ Verify Immortality
+```
+source /root/.bashrc
+
+
+cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E \
+"isResponder(address)(bool)" \
+0xYourWalletAddress \
+--rpc-url https://ethereum-holesky-rpc.publicnode.com/
+```
+Returns true = Discord username is immortalized on-chain 🔥
 ---
 
-How to Confirm It’s Working
 
-After trap-setup.sh, you should see deployment success logs.
+📜 View All Immortalized Discord Names
+```
+source /root/.bashrc
 
-The verify.sh script will return true if your address is registered as a responder.
-
-For SystemD, view logs with:
-
-journalctl -u drosera.service -f
-
-For Docker, view logs with:
-
-docker logs -f drosera-node
-
-Visit the Drosera app to connect your wallet and manage your trap.
+cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E \
+"getDiscordNamesBatch(uint256,uint256)(string[])" \
+0 2000 \
+--rpc-url https://ethereum-holesky-rpc.publicnode.com/
+```
 
 
+👑 Credits
 
----
+Created by Saint Khen
+Follow for more: @admirkhen
 
-Notes
+> Saint Khen blesses you with immortality.
+Go forth and claim your Cadet role ⚔️
 
-The scripts automatically install necessary dependencies like Docker, Foundry, Bun, and Drosera CLI.
+thanks to 0xmoei🔥
 
-Make sure your private key and RPC URL are kept secure.
-
-Use SystemD if you want a lightweight, service-managed node. Use Docker if you prefer containerization.
-
-Feel free to edit the scripts to customize parameters.
-
-
-
----
-
-Troubleshooting
-
-If deployment fails, double-check your private key format and RPC URL.
-
-Ensure your VPS firewall allows ports 22, 31313, and 31314.
-
-Check operator logs for errors (journalctl or docker logs).
-
-
-
----
-
-License
-
-MIT License © Saint Khen
 
 
 ---
 
-Made with ❤️ by emmogrin
+💡 Tips
+
+Use a VPS with at least 2GB RAM
+
+Fund your wallet with Holesky ETH before deploying traps
+
+Scripts are idempotent — rerun if needed
+
+
+
+---
+
+🗣 Questions?
+
+DM @admirkhen or hop on Discord.
+Stay immortal.
+
+
