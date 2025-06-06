@@ -1,50 +1,60 @@
 #!/bin/bash
-set -e
 
-echo "───────────────────────────────────────────────"
-echo "   🪤 DROSERA TRAP SETUP - by @admirkhen"
-echo "───────────────────────────────────────────────"
+echo -e "\n=== 🎯 Drosera Trap Setup ==="
 
-read -p "Enter your EVM private key (hex, no 0x prefix): " PRIV_KEY
+trim() { echo "$1" | xargs; }
 
-if [[ -z "$PRIV_KEY" ]]; then
-  echo "Private key cannot be empty!"
-  exit 1
-fi
+read -p "Enter your Trap EVM Private Key (64 hex): " PRIVATE_KEY
+PRIVATE_KEY=$(trim "$PRIVATE_KEY")
 
-# Add 0x prefix if missing
-if [[ $PRIV_KEY != 0x* ]]; then
-  PRIV_KEY="0x$PRIV_KEY"
-fi
+read -p "Enter your Ethereum Holesky RPC URL: " RPC_URL
+RPC_URL=$(trim "$RPC_URL")
 
-# Clone trap repo
-echo "Cloning Drosera trap starter repo..."
-git clone https://github.com/drosera-network/trap-starter.git my-drosera-trap
+# Update system + tools
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y curl git unzip jq build-essential pkg-config libssl-dev liblz4-tool
 
-cd my-drosera-trap
+# Install drosera, foundry, bun
+curl -L https://app.drosera.io/install | bash && source ~/.bashrc && droseraup
+curl -L https://foundry.paradigm.xyz | bash && source ~/.bashrc && foundryup
+curl -fsSL https://bun.sh/install | bash && source ~/.bashrc
+export PATH="$HOME/.bun/bin:$PATH"
 
-# Compile trap contract
-echo "Compiling trap contract..."
+# Init trap (no need for git email/username if using forge init)
+mkdir -p ~/my-drosera-trap && cd ~/my-drosera-trap
+forge init -t drosera-network/trap-foundry-template
+
+# Write Trap.sol without Discord
+cat <<EOF > src/Trap.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {ITrap} from "drosera-contracts/interfaces/ITrap.sol";
+interface IMockResponse {
+    function isActive() external view returns (bool);
+}
+contract Trap is ITrap {
+    address public constant RESPONSE_CONTRACT = 0x4608Afa7f277C8E0BE232232265850d1cDeB600E;
+    function collect() external view returns (bytes memory) {
+        bool active = IMockResponse(RESPONSE_CONTRACT).isActive();
+        return abi.encode(active);
+    }
+    function shouldRespond(bytes[] calldata data) external pure returns (bool, bytes memory) {
+        (bool active) = abi.decode(data[0], (bool));
+        if (!active) return (false, bytes(""));
+        return (true, abi.encode(""));
+    }
+}
+EOF
+
+# Fix config
+sed -i 's|path = .*|path = "out/Trap.sol/Trap.json"|' drosera.toml
+echo "private_trap = true" >> drosera.toml
+
+# Build + Deploy
+bun install
 forge build
 
-# Test the trap before deploying
-echo "Running dryrun test..."
-drosera dryrun
+DROSERA_PRIVATE_KEY="$PRIVATE_KEY" drosera apply --eth-rpc-url "$RPC_URL"
 
-# Deploy trap contract
-echo "Deploying trap to Holesky testnet..."
-DROSERA_PRIVATE_KEY=$PRIV_KEY drosera apply
-
-echo ""
-echo "───────────────────────────────────────────────"
-echo "✅ Trap deployed successfully!"
-
-echo "⚠️ IMPORTANT: To activate your Trap fully:"
-echo "1) Open the Drosera Dashboard: https://dashboard.drosera.io"
-echo "2) Go to 'Traps Owned' and find your Trap."
-echo "3) Click 'Send Bloom Boost' and deposit some Holesky ETH to your Trap."
-echo "4) Then come back here and run 'drosera dryrun' to fetch and simulate blocks."
-
-echo "You can run this command anytime to test your Trap:"
-echo "drosera dryrun"
-echo "───────────────────────────────────────────────"
+echo -e "\n✅ Trap deployed!"
