@@ -30,15 +30,19 @@ This repo helps you:
 
 ---
 
-## 🚀 Full Setup Guide (Ubuntu VPS)
+# 🚀 Full Setup Guide (Ubuntu VPS)
 
 ```bash
 # 1. Clone the repo
 git clone https://github.com/emmogrin/drosera-trap-full-setup.git
 cd drosera-trap-full-setup
 ```
-
-# 2. Deploy your Trap (must be first!)
+# 1. install docker and dependencies (skip if Docker and dependencies already installed)
+```
+chmod +x install-docker.sh
+./install-docker.sh
+```
+# 2. Deploy your Trap 
 ```
 chmod +x trap-setup.sh
 ./trap-setup.sh
