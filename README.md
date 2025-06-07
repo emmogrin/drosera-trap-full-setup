@@ -32,8 +32,8 @@ This repo helps you:
 
 # 🚀 Full Setup Guide (Ubuntu VPS)
 
+# 0. Clone the repo
 ```bash
-# 1. Clone the repo
 git clone https://github.com/emmogrin/drosera-trap-full-setup.git
 cd drosera-trap-full-setup
 ```
