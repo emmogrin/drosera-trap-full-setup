@@ -6,14 +6,14 @@ curl -L https://app.drosera.io/install | bash
 source /root/.bashrc
 droseraup
 
-echo "=== Step 2: Install Bun (with auto-update disabled) ==="
-export BUN_INSTALL="$HOME/.bun"
-export BUN_SKIP_AUTO_UPDATE=1
-curl -fsSL https://bun.sh/install | bash
-source ~/.bashrc
+echo "=== Step 2: Install Foundry CLI ==="
+curl -L https://foundry.paradigm.xyz | bash
+source /root/.bashrc
+foundryup
 
-echo "=== Step 3: Pull Foundry Docker Image ==="
-docker pull foundryrs/foundry:latest
+echo "=== Step 3: Install Bun ==="
+curl -fsSL https://bun.sh/install | bash
+source /root/.bashrc
 
 echo "=== Step 4: Prepare Trap Directory ==="
 mkdir -p ~/my-drosera-trap
@@ -25,12 +25,12 @@ read -p "Enter your Github Username: " GITHUB_USER
 git config --global user.email "$GITHUB_EMAIL"
 git config --global user.name "$GITHUB_USER"
 
-echo "=== Step 5: Initialize Trap Project using Foundry Docker ==="
-docker run --rm -v "$PWD":/project -w /project foundryrs/foundry:latest forge init -t drosera-network/trap-foundry-template
+echo "=== Step 5: Initialize Trap Project ==="
+forge init -t drosera-network/trap-foundry-template
 
-echo "=== Step 6: Compile Trap (using Bun and Foundry Docker) ==="
+echo "=== Step 6: Compile Trap ==="
 bun install
-docker run --rm -v "$PWD":/project -w /project foundryrs/foundry:latest forge build
+forge build
 
 echo "=== Step 7: Deploy Trap ==="
 read -p "Enter your DROSERA_PRIVATE_KEY (hex, no 0x prefix): " DROSERA_PRIVATE_KEY
