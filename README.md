@@ -1,8 +1,8 @@
-# 🧡🧡🧡🧡🧡🧡 Drosera Trap Full Setup🧡🧡🧡🧡🧡🧡🧡🧡🧡
+# 🧡🧡🧡🧡🧡🧡 Drosera Trap Full Setup🧡🧡🧡🧡🧡🧡🧡🧡
 
 Welcome to the official **Drosera Trap Full Setup** repo.
 
-Saint Khen (@admirkhen) blesses you with immortality.  
+# Saint Khen (@admirkhen) blesses you with immortality.  
 Go forth and earn your **Cadet role** on Discord 🛡️
 
 ---
