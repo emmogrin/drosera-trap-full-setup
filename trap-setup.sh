@@ -1,15 +1,48 @@
 #!/bin/bash
 set -e
 
+echo "=== Prerequisite: Install Docker ==="
+curl -fsSL https://get.docker.com | sh
+if ! docker -v &>/dev/null; then
+  echo "❌ Docker not installed or not working. Exiting."
+  exit 1
+fi
+
 echo "=== Step 1: Install Drosera CLI ==="
 curl -L https://app.drosera.io/install | bash
 source /root/.bashrc
 droseraup
 
-echo "=== Step 2: Install Foundry CLI ==="
+echo "=== Step 2: Install Foundry CLI (with Docker fallback) ==="
 curl -L https://foundry.paradigm.xyz | bash
 source /root/.bashrc
-foundryup
+foundryup || true
+
+# Check if `forge` runs, else use Docker wrapper
+if ! forge -V &>/dev/null; then
+  echo "⚠️ Foundry binaries failed (likely GLIBC error). Using Docker fallback for forge."
+
+  # Create Docker wrapper functions
+  cat << 'EOF' > /usr/local/bin/forge
+#!/bin/bash
+docker run -it --rm -v "$PWD":/app -w /app ghcr.io/foundry-rs/foundry forge "$@"
+EOF
+
+  cat << 'EOF' > /usr/local/bin/cast
+#!/bin/bash
+docker run -it --rm -v "$PWD":/app -w /app ghcr.io/foundry-rs/foundry cast "$@"
+EOF
+
+  cat << 'EOF' > /usr/local/bin/anvil
+#!/bin/bash
+docker run -it --rm -v "$PWD":/app -w /app -p 8545:8545 ghcr.io/foundry-rs/foundry anvil "$@"
+EOF
+
+  chmod +x /usr/local/bin/{forge,cast,anvil}
+  echo "✅ Docker fallback enabled for Foundry."
+else
+  echo "✅ Foundry CLI installed and working."
+fi
 
 echo "=== Step 3: Install Bun ==="
 curl -fsSL https://bun.sh/install | bash
