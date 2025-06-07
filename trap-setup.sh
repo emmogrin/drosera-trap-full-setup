@@ -6,12 +6,14 @@ curl -L https://app.drosera.io/install | bash
 source /root/.bashrc
 droseraup
 
-echo "=== Step 2: Install Bun ==="
+echo "=== Step 2: Install Bun (with auto-update disabled) ==="
+export BUN_INSTALL="$HOME/.bun"
+export BUN_SKIP_AUTO_UPDATE=1
 curl -fsSL https://bun.sh/install | bash
-source /root/.bashrc
+source ~/.bashrc
 
 echo "=== Step 3: Pull Foundry Docker Image ==="
-docker pull foundry-rs/foundry:latest
+docker pull foundryrs/foundry:latest
 
 echo "=== Step 4: Prepare Trap Directory ==="
 mkdir -p ~/my-drosera-trap
@@ -23,22 +25,20 @@ read -p "Enter your Github Username: " GITHUB_USER
 git config --global user.email "$GITHUB_EMAIL"
 git config --global user.name "$GITHUB_USER"
 
-echo "=== Step 5: Initialize Trap Project (via Docker) ==="
-docker run --rm -v "$PWD":/project -w /project foundry-rs/foundry forge init -t drosera-network/trap-foundry-template
+echo "=== Step 5: Initialize Trap Project using Foundry Docker ==="
+docker run --rm -v "$PWD":/project -w /project foundryrs/foundry:latest forge init -t drosera-network/trap-foundry-template
 
-echo "=== Step 6: Install Node Modules (Bun) ==="
+echo "=== Step 6: Compile Trap (using Bun and Foundry Docker) ==="
 bun install
+docker run --rm -v "$PWD":/project -w /project foundryrs/foundry:latest forge build
 
-echo "=== Step 7: Compile Trap (via Docker) ==="
-docker run --rm -v "$PWD":/project -w /project foundry-rs/foundry forge build
-
-echo "=== Step 8: Deploy Trap ==="
+echo "=== Step 7: Deploy Trap ==="
 read -p "Enter your DROSERA_PRIVATE_KEY (hex, no 0x prefix): " DROSERA_PRIVATE_KEY
 read -p "Enter your Ethereum RPC URL (e.g. Holesky): " ETH_RPC_URL
 
 DROSERA_PRIVATE_KEY="$DROSERA_PRIVATE_KEY" drosera apply --eth-rpc-url "$ETH_RPC_URL"
 
-echo "=== Step 9: Existing User Trap Address Setup (optional) ==="
+echo "=== Step 8: Existing User Trap Address Setup (optional) ==="
 read -p "Are you an existing user needing to add trap address? (y/N): " EXISTING_USER
 if [[ "$EXISTING_USER" =~ ^[Yy]$ ]]; then
   read -p "Enter your TRAP_ADDRESS (0x...): " TRAP_ADDRESS
@@ -55,14 +55,14 @@ if [[ "$EXISTING_USER" =~ ^[Yy]$ ]]; then
   DROSERA_PRIVATE_KEY="$DROSERA_PRIVATE_KEY" drosera apply --eth-rpc-url "$ETH_RPC_URL"
 fi
 
-echo "=== Step 10: Check Trap on Dashboard ==="
+echo "=== Step 9: Check Trap on Dashboard ==="
 echo "Visit https://app.drosera.io/ and connect your Drosera EVM wallet."
 echo "Click on 'Traps Owned' or search your Trap address."
 
-echo "=== Step 11: Bloom Boost Trap ==="
+echo "=== Step 10: Bloom Boost Trap ==="
 echo "Open your Trap on Dashboard and click 'Send Bloom Boost' to deposit some Holesky ETH."
 
-echo "=== Step 12: Fetch Blocks (dryrun) ==="
+echo "=== Step 11: Fetch Blocks (dryrun) ==="
 drosera dryrun
 
 echo "=== Setup Complete ==="
