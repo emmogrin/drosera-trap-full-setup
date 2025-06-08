@@ -1,27 +1,19 @@
 #!/bin/bash
 set -e
 
-BASHRC_PATH="$HOME/.bashrc"
-
 echo "=== Step 1: Install Drosera CLI ==="
 curl -L https://app.drosera.io/install | bash
-if [ -f "$BASHRC_PATH" ]; then
-  source "$BASHRC_PATH"
-fi
+source /root/.bashrc
 droseraup
 
 echo "=== Step 2: Install Foundry CLI ==="
 curl -L https://foundry.paradigm.xyz | bash
-if [ -f "$BASHRC_PATH" ]; then
-  source "$BASHRC_PATH"
-fi
+source /root/.bashrc
 foundryup
 
 echo "=== Step 3: Install Bun ==="
 curl -fsSL https://bun.sh/install | bash
-if [ -f "$BASHRC_PATH" ]; then
-  source "$BASHRC_PATH"
-fi
+source /root/.bashrc
 
 echo "=== Step 4: Prepare Trap Directory ==="
 mkdir -p ~/my-drosera-trap
@@ -50,7 +42,7 @@ echo "=== Step 8: Existing User Trap Address Setup (optional) ==="
 read -p "Are you an existing user needing to add trap address? (y/N): " EXISTING_USER
 if [[ "$EXISTING_USER" =~ ^[Yy]$ ]]; then
   read -p "Enter your TRAP_ADDRESS (0x...): " TRAP_ADDRESS
-  read -p "Enter your whitelist operator addresses separated by commas: " WHITELIST
+  read -p "Enter your whitelist operator addresses separated by commas (Operator1_Address,Operator2_Address,...): " WHITELIST
   echo "" >> drosera.toml
   echo "address = \"$TRAP_ADDRESS\"" >> drosera.toml
   IFS=',' read -ra ADDRS <<< "$WHITELIST"
@@ -64,7 +56,8 @@ if [[ "$EXISTING_USER" =~ ^[Yy]$ ]]; then
 fi
 
 echo "=== Step 9: Check Trap on Dashboard ==="
-echo "Visit https://app.drosera.io/ and connect your wallet."
+echo "Visit https://app.drosera.io/ and connect your Drosera EVM wallet."
+echo "Click on 'Traps Owned' or search your Trap address."
 
 echo "=== Step 10: Bloom Boost Trap ==="
 echo "Open your Trap on Dashboard and click 'Send Bloom Boost' to deposit some Holesky ETH."
@@ -72,4 +65,4 @@ echo "Open your Trap on Dashboard and click 'Send Bloom Boost' to deposit some H
 echo "=== Step 11: Fetch Blocks (dryrun) ==="
 drosera dryrun
 
-echo "=== ✅ Setup Complete ==="
+echo "=== Setup Complete ==="
