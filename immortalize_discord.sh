@@ -1,16 +1,13 @@
 #!/bin/bash
 
 echo "🛡️ Saint Khen (@admirkhen) blesses you with immortality..."
-echo "Follow the path. Follow Saint Khen 👉 twitter.com/admirkhen"
+echo "Follow the path 👉 twitter.com/admirkhen"
 echo ""
 
-# Drosera Trap directory
-cd ~/my-drosera-trap || exit
+cd ~/my-drosera-trap || { echo "❌ Trap folder not found. Did you deploy your trap yet?"; exit 1; }
 
-# Prompt for Discord username
-read -p "Enter your Discord username (e.g., admirkhen#1234): " DISCORD_NAME
+read -p "👤 Enter your Discord username (e.g., admirkhen#1234): " DISCORD_NAME
 
-# Replace old Trap.sol
 cat <<EOF > src/Trap.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
@@ -40,53 +37,80 @@ contract Trap is ITrap {
 }
 EOF
 
-echo "✅ Trap.sol updated with Discord username: $DISCORD_NAME"
+echo "✅ Trap.sol updated."
 
-# Update drosera.toml (only key fields)
+# Auto-update drosera.toml
 sed -i 's|^path = .*|path = "out/Trap.sol/Trap.json"|' drosera.toml
 sed -i 's|^response_contract = .*|response_contract = "0x4608Afa7f277C8E0BE232232265850d1cDeB600E"|' drosera.toml
 sed -i 's|^response_function = .*|response_function = "respondWithDiscordName(string)"|' drosera.toml
-
 echo "✅ drosera.toml updated."
 
-# Compile
 source ~/.bashrc
+
 forge build || { echo "❌ forge build failed"; exit 1; }
+drosera dryrun || { echo "❌ Drosera dry run failed"; exit 1; }
 
-# Dry run
-drosera dryrun || { echo "❌ Dry run failed"; exit 1; }
+read -p "🔑 Paste your Holesky EVM private key: " PRIVATE_KEY
 
-# Prompt for private key
-read -p "Paste your Holesky EVM private key: " PRIVATE_KEY
-
-# Deploy trap
-DROSERA_PRIVATE_KEY="$PRIVATE_KEY" drosera apply <<EOF
-ofc
-EOF
-
-echo ""
+# Deploy with Drosera CLI
+DROSERA_PRIVATE_KEY="$PRIVATE_KEY" drosera apply <<< "ofc"
 echo "🚀 Trap deployed!"
-echo ""
 
-# Get deployer address
+# Get wallet address
 WALLET_ADDRESS=$(cast wallet address "$PRIVATE_KEY")
-echo "🔍 Checking response status for: $WALLET_ADDRESS"
+echo "🔍 Verifying on-chain status for: $WALLET_ADDRESS"
 
-# Wait 10s before verifying
 sleep 10
 
-# Verify on-chain status
 RESPONDED=$(cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E "isResponder(address)(bool)" "$WALLET_ADDRESS" --rpc-url https://ethereum-holesky-rpc.publicnode.com)
 
-echo ""
 if [ "$RESPONDED" = "true" ]; then
-  echo "✅ Success! Your Discord username is now immortalized."
-  echo "🎖️ Go forth and claim your Cadet role!"
+  echo "✅ Success! Your Discord name is now immortalized on-chain."
+  echo "🎖️ Claim your Cadet role on Discord!"
 else
-  echo "⚠️ Not yet verified. Wait 1–2 minutes and recheck:"
+  echo "⚠️ Not yet verified. Try again in 1–2 minutes:"
   echo "cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E \"isResponder(address)(bool)\" $WALLET_ADDRESS --rpc-url https://ethereum-holesky-rpc.publicnode.com"
 fi
 
 echo ""
-echo "🌟 Saint Khen blesses you with immortality."
-echo "🕊️ Follow your destiny: twitter.com/admirkhen"
+echo "🕊️ Saint Khen watches over you. Stay immortal."
+echo ""
+
+# 🔧 SYSTEMD DROPSERA SERVICE SETUP
+read -p "📡 Enter your VPS public IP (no port, just IP): " VPS_IP
+read -p "🌐 Enter your Holesky RPC URL (Alchemy, QuickNode, etc): " RPC_URL
+
+sudo tee /etc/systemd/system/drosera.service > /dev/null <<EOF
+[Unit]
+Description=Drosera Operator Service
+After=network-online.target
+
+[Service]
+User=$USER
+Restart=always
+RestartSec=15
+LimitNOFILE=65535
+ExecStart=$(which drosera-operator) node \
+  --db-file-path $HOME/.drosera.db \
+  --network-p2p-port 31313 \
+  --server-port 31314 \
+  --eth-rpc-url $RPC_URL \
+  --eth-backup-rpc-url https://1rpc.io/holesky \
+  --drosera-address 0xea08f7d533C2b9A62F40D5326214f39a8E3A32F8 \
+  --eth-private-key $PRIVATE_KEY \
+  --listen-address 0.0.0.0 \
+  --network-external-p2p-address $VPS_IP \
+  --disable-dnr-confirmation true
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reexec
+sudo systemctl daemon-reload
+sudo systemctl enable drosera
+sudo systemctl restart drosera
+
+echo ""
+echo "🔧 drosera-operator service installed and started!"
+echo "🖥️ To check logs: sudo journalctl -fu drosera"
