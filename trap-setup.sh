@@ -3,17 +3,17 @@ set -e
 
 echo "=== Step 1: Install Drosera CLI ==="
 curl -L https://app.drosera.io/install | bash
-source /root/.bashrc
+source ~/.bashrc
 droseraup
 
 echo "=== Step 2: Install Foundry CLI ==="
 curl -L https://foundry.paradigm.xyz | bash
-source /root/.bashrc
+source ~/.bashrc
 foundryup
 
 echo "=== Step 3: Install Bun ==="
 curl -fsSL https://bun.sh/install | bash
-source /root/.bashrc
+source ~/.bashrc
 
 echo "=== Step 4: Prepare Trap Directory ==="
 mkdir -p ~/my-drosera-trap
