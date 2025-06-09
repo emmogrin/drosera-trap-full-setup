@@ -1,132 +1,192 @@
-# 🧡🧡🧡🧡🧡🧡 Drosera Trap Full Setup🧡🧡🧡🧡🧡🧡🧡🧡
 
-Welcome to the official **Drosera Trap Full Setup** repo.
+🧡 Drosera Trap Full Setup Guide 🧡
 
-# Saint Khen (@admirkhen) blesses you with immortality.  
-Go forth and earn your **Cadet role** on Discord 🛡️
+Immortality starts here, Cadet.
+
+Welcome to the official Drosera Trap Full Setup repo.
+
+> ✨ Saint Khen (@admirkhen) blesses you with immortality.
+Claim your Cadet role and rise through the Drosera ranks. ⚔️
+
+
+
 
 ---
 
-## 🧱 What Is This?
+🧱 What’s This?
 
-This repo helps you:
+A one-stop setup to:
 
-- ✅ Deploy your first Trap (must be done first)
-- 🧑‍💻 Setup Drosera Operator (depends on trap being deployed)
-- 🔗 Immortalize your Discord username on-chain
-- 🏅 Earn the exclusive **Cadet role**
+🧲 Deploy your first Trap
 
----
+🧑‍💻 Setup Drosera Operator
 
-## 📁 Files🧡
+🔗 Immortalize your Discord username on-chain
 
-| Script | Purpose |
-|--------|---------|
-| `trap-setup.sh`            | Deploy your first Trap (required before operator) |
-| `drosera-operator-full.sh` | Setup Drosera Operator (runs the trap) |
-| `immortalize_discord.sh`   | Submit your Discord username and get Cadet role |
-| `verify.sh`                | Check if Discord name is on-chain |
-| `drosera.toml`             | Config file (auto-edited by scripts) |
+🏅 Earn the Cadet Role in Discord
+
+
 
 ---
 
-# 🚀 Full Setup Guide (Ubuntu VPS)
+📁 Scripts in This Repo
+
+File	Purpose
+
+trap-setup.sh	Deploy your first Trap (do this first)
+drosera-operator-full.sh	Setup Drosera Operator (to run your trap)
+immortalize_discord.sh	Immortalize your Discord username on-chain
+verify.sh	Verify if you’re immortalized (optional)
+drosera.toml	Config file (auto-edited by scripts)
 
 
-# 0. Clone the repo
-```bash
 
+---
+
+⚙️ Setup Instructions (Ubuntu VPS Recommended)
+
+🪜 Step 0: Clone the Repo
+```
 apt update && apt install -y git
-```
-```
 git clone https://github.com/emmogrin/drosera-trap-full-setup.git
 cd drosera-trap-full-setup
 ```
 
-# 1. install docker and dependencies (skip if Docker and dependencies already installed)
+---
+
+🐳 Step 1: Install Docker & Dependencies
+
+(Skip if Docker is already installed)
 ```
 chmod +x install-docker.sh
 ./install-docker.sh
 ```
 
-# 2. Deploy your Trap 
+---
+
+🧲 Step 2: Deploy Your Trap
 ```
 chmod +x trap-setup.sh
 ./trap-setup.sh
 ```
+What you'll enter:
+
+Your GitHub email
+
+Your GitHub username
+
+Your Holesky EVM private key (0.2 ETH recommended)
+
+Your Ethereum Holesky RPC (e.g., from Alchemy)
 
 
-# 3. Setup Drosera Operator (after trap is deployed)
+🟠 If you're a new user, choose No when asked if you're existing.
+
+🚨 After deploying, go to https://app.drosera.io and Bloom your Trap to activate it.
+
+
+---
+
+⚙️ Step 3: Setup Drosera Operator
 ```
 chmod +x drosera-operator-full.sh
 ./drosera-operator-full.sh
 ```
+You'll be asked for:
 
-# 4. Immortalize your Discord Name (earn Cadet role)
+Operator address
+
+Same private key
+
+Holesky RPC
+
+Your Trap address (from the previous step)
+
+
+✅ Once done, go opt-in on the website.
+🧠 Use OKX Wallet — Metamask might bug out.
+
+
+---
+
+🪪 Step 4: Immortalize Your Discord Username
 ```
 chmod +x immortalize_discord.sh
 ./immortalize_discord.sh
 ```
+Enter:
 
-⚠️ You need your EVM private key and some Holesky ETH
-Get ETH from: https://holeskyfaucet.com
+Your Discord username (e.g., admirkhen#1234)
+
+Same private key
+
+your VPS IP
+
+your RPC URL 
+
+🎖️ Once done, your name is on-chain. You’re now a Cadet.
 
 
+---
 
-✅ Verify Immortality
+✅ Step 5: Verify Your Immortality (Optional)
+
+source ~/.bashrc  # ✅ For correct env setup
 ```
-source /root/.bashrc
-
-
 cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E \
 "isResponder(address)(bool)" \
 0xYourWalletAddress \
 --rpc-url https://ethereum-holesky-rpc.publicnode.com/
 ```
-Returns true = Discord username is immortalized on-chain 🔥
+If it returns true → You’re immortal 🧬
+
+
 ---
 
-
-📜 View All Immortalized Discord Names
+🔍 View All Immortalized Discords
 ```
-source /root/.bashrc
-
 cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E \
 "getDiscordNamesBatch(uint256,uint256)(string[])" \
 0 2000 \
 --rpc-url https://ethereum-holesky-rpc.publicnode.com/
-```
 
+```
+---
+
+💡 Tips & Requirements
+
+Use a VPS with at least 2GB RAM
+
+Fund your EVM wallet with Holesky ETH
+
+Get from holeskyfaucet.com
+
+
+Scripts are idempotent — rerun anytime
+
+Always use OKX Wallet on the dashboard
+
+
+
+---
 
 👑 Credits
 
-Created by Saint Khen
-Follow for more: @admirkhen
+Built by Saint Khen
+🧡 Twitter: @admirkhen
+🔥 Thanks to 0xmoei for the Drosera wizardry.
 
 > Saint Khen blesses you with immortality.
 Go forth and claim your Cadet role ⚔️
 
-thanks to 0xmoei🔥
 
 
 
 ---
 
-💡 Tips
+🗣 Questions or Stuck?
 
-Use a VPS with at least 2GB RAM
-
-Fund your wallet with Holesky ETH before deploying traps
-
-Scripts are idempotent — rerun if needed
-
-
-
----
-
-🗣 Questions?
-
-DM @admirkhen or hop on Discord.
-Stay immortal.
+DM @admirkhen
+Or hop in the Drosera Discord
 
 
