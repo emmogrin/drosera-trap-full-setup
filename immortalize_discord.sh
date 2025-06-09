@@ -50,7 +50,7 @@ sed -i 's|^response_function = .*|response_function = "respondWithDiscordName(st
 echo "✅ drosera.toml updated."
 
 # Compile
-source /root/.bashrc
+source ~/.bashrc
 forge build || { echo "❌ forge build failed"; exit 1; }
 
 # Dry run
