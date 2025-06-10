@@ -120,7 +120,8 @@ Your Discord username (e.g., admirkhen#1234)
 
 Same private key
 
-your VPS IP
+your VPS IP, but ( if you run locally use https://whatismyipaddress.com/)
+[![IMG-20250610-WA0006.jpg](https://i.postimg.cc/yd3b9X2g/IMG-20250610-WA0006.jpg)](https://postimg.cc/ftZCQXzD)
 
 your RPC URL 
 
