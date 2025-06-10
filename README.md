@@ -75,14 +75,14 @@ Your GitHub email
 
 Your GitHub username
 
-Your Holesky EVM private key (0.2 ETH recommended)
+Your Holesky EVM private key (0.2 - 0.3 ETH recommended)
 
-Your Ethereum Holesky RPC (e.g., from Alchemy)
+Your Ethereum Holesky RPC (e.g., from Alchemy or QuickNode)
 
 
 🟠 If you're a new user, choose No when asked if you're existing.
 
-🚨 After deploying, go to https://app.drosera.io and Bloom your Trap to activate it.
+🚨 After deploying, go to https://app.drosera.io click on traps owned and Bloom your Trap to activate it (0.02 eth is fine if you don't have much😞).
 
 
 ---
@@ -94,7 +94,7 @@ chmod +x drosera-operator-full.sh
 ```
 You'll be asked for:
 
-Operator address
+Operator address (the wallet address of the private key)
 
 Same private key
 
