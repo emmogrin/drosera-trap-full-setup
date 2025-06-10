@@ -83,7 +83,7 @@ Your Ethereum Holesky RPC (e.g., from Alchemy or QuickNode)
 🟠 If you're a new user, choose No when asked if you're existing.
 
 🚨 After deploying, go to https://app.drosera.io click on traps owned and Bloom your Trap to activate it (0.02 eth is fine if you don't have much😞).
-
+[![IMG-20250610-WA0003.jpg](https://i.postimg.cc/hPv0WxdY/IMG-20250610-WA0003.jpg)](https://postimg.cc/ykqR0Dnh)
 
 ---
 
