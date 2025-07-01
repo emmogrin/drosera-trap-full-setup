@@ -1,37 +1,33 @@
 #!/bin/bash
 set -e
 
-echo "=== Drosera Operator Setup (Connected to Trap) ==="
+echo "==============================================="
+echo "🔺 UCHIHA SAINT OPERATOR NODE SETUP FOR HOODI 🔺"
+echo "==============================================="
 
-# Step 1: Move into trap directory
+# 1. Move into trap folder
 cd ~/my-drosera-trap
 
-# Step 2: Prompt for Operator Public Address
+# 2. Prompt
 read -p "Enter your OPERATOR_ADDRESS (0x...): " OPERATOR_ADDRESS
-
-# Step 3: Prompt for Drosera private key
 read -p "Enter your DROSERA_PRIVATE_KEY (hex, no 0x): " DROSERA_PRIVATE_KEY
+read -p "Enter your Ethereum RPC URL (Hoodi): " ETH_RPC_URL
+read -p "Enter your Deployed Trap Contract Address: " TRAP_ADDRESS
 
-# Step 4: Prompt for ETH RPC
-read -p "Enter your Ethereum Holesky RPC URL: " ETH_RPC_URL
-
-# Step 5: Prompt for Deployed Trap Contract Address
-read -p "Enter your deployed Trap Contract Address (0x...): " TRAP_ADDRESS
-
-# Step 6: Update drosera.toml whitelist with operator and trap address
+# 3. Update TOML
 echo "Updating drosera.toml..."
 cp drosera.toml drosera.toml.bak || true
 
 cat > drosera.toml <<TOML
-ethereum_rpc = "https://ethereum-holesky-rpc.publicnode.com"
-drosera_rpc = "https://relay.testnet.drosera.io"
-eth_chain_id = 17000
-drosera_address = "0xea08f7d533C2b9A62F40D5326214f39a8E3A32F8"
+ethereum_rpc = "$ETH_RPC_URL"
+drosera_rpc = "https://relay.hoodi.drosera.io"
+eth_chain_id = 560048
+drosera_address = "0x91cB447BaFc6e0EA0F4Fe056F5a9b1F14bb06e5D"
 
 [traps]
 [traps.mytrap]
 path = "out/HelloWorldTrap.sol/HelloWorldTrap.json"
-response_contract = "0xdA890040Af0533D98B9F5f8FE3537720ABf83B0C"
+response_contract = "0x183D78491555cb69B68d2354F7373cc2632508C7"
 response_function = "helloworld(string)"
 cooldown_period_blocks = 33
 min_number_of_operators = 1
@@ -44,10 +40,11 @@ TOML
 
 echo "drosera.toml updated ✅"
 
-# Step 7: Apply config
-DROSERA_PRIVATE_KEY="$DROSERA_PRIVATE_KEY" drosera apply --eth-rpc-url "$ETH_RPC_URL"
+# 4. Confirm or Skip drosera apply  optional:
+# echo "Applying config..."
+# DROSERA_PRIVATE_KEY="$DROSERA_PRIVATE_KEY" drosera apply --eth-rpc-url "$ETH_RPC_URL"
 
-# Step 8: Download and install drosera-operator CLI
+# 5. Download & Install Operator CLI
 cd ~
 echo "Installing drosera-operator CLI..."
 curl -LO https://github.com/drosera-network/releases/releases/download/v1.17.2/drosera-operator-v1.17.2-x86_64-unknown-linux-gnu.tar.gz
@@ -55,13 +52,13 @@ tar -xvf drosera-operator-v1.17.2-x86_64-unknown-linux-gnu.tar.gz
 sudo cp drosera-operator /usr/bin
 drosera-operator --version
 
-# Step 9: Pull Docker image
+# 6. Pull Docker image
 docker pull ghcr.io/drosera-network/drosera-operator:latest
 
-# Step 10: Register operator
-drosera-operator register --eth-rpc-url "$ETH_RPC_URL" --eth-private-key "$DROSERA_PRIVATE_KEY"
+# 7. Register Operator
+drosera-operator register --eth-rpc-url "$ETH_RPC_URL" --eth-private-key "$DROSERA_PRIVATE_KEY" --drosera-address 0x91cB447BaFc6e0EA0F4Fe056F5a9b1F14bb06e5D
 
-# Step 11: Open firewall ports
+# 8. Firewall
 echo "Configuring UFW..."
 sudo ufw allow ssh
 sudo ufw allow 22
@@ -69,15 +66,14 @@ sudo ufw allow 31313/tcp
 sudo ufw allow 31314/tcp
 sudo ufw --force enable
 
-# Step 12: Prompt for VPS public IP
-read -p "Enter your VPS public IP (for P2P broadcast): " VPS_IP
+# 9. VPS Public IP
+read -p "Enter your VPS public IP for P2P: " VPS_IP
 
-# Step 13: Create SystemD service
+# 10. SystemD Service
 echo "Setting up drosera systemd service..."
-
 sudo tee /etc/systemd/system/drosera.service > /dev/null <<SERVICE
 [Unit]
-Description=drosera node service
+Description=Drosera Operator Node
 After=network-online.target
 
 [Service]
@@ -87,7 +83,7 @@ RestartSec=15
 LimitNOFILE=65535
 ExecStart=$(which drosera-operator) node --db-file-path $HOME/.drosera.db --network-p2p-port 31313 --server-port 31314 \
     --eth-rpc-url $ETH_RPC_URL \
-    --eth-backup-rpc-url https://1rpc.io/holesky \
+    --eth-backup-rpc-url https://eth-hoodi.g.alchemy.com/v2/SDctBqvoTyj4LBriVGJPE \
     --drosera-address 0xea08f7d533C2b9A62F40D5326214f39a8E3A32F8 \
     --eth-private-key $DROSERA_PRIVATE_KEY \
     --listen-address 0.0.0.0 \
@@ -98,12 +94,11 @@ ExecStart=$(which drosera-operator) node --db-file-path $HOME/.drosera.db --netw
 WantedBy=multi-user.target
 SERVICE
 
-# Step 14: Start the service
+# 11. Start Service
 sudo systemctl daemon-reload
 sudo systemctl enable drosera
 sudo systemctl start drosera
 
-echo "=== All Done! ✅ ==="
-echo "Check your node logs with:"
-echo "  journalctl -u drosera.service -f"
-echo "Then opt in to your trap on https://app.drosera.io/"
+echo "✅ Operator Node Ready! Uchiha Saint Approves. 🔺"
+echo "Check logs:  journalctl -u drosera.service -f"
+echo "Then opt in your operator: https://app.drosera.io/"
