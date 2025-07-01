@@ -1,6 +1,13 @@
 #!/bin/bash
 set -e
 
+echo "==============================================="
+echo "🔺 UCHIHA SAINT WELCOMES YOU TO THE DROSERA HOODI TESTNET 🔺"
+echo "==============================================="
+echo
+echo "🌒 The Infinite Tsukuyomi of Traps Awaits..."
+echo
+
 echo "=== Step 1: Install Drosera CLI ==="
 curl -L https://app.drosera.io/install | bash
 source ~/.bashrc
@@ -34,35 +41,38 @@ forge build
 
 echo "=== Step 7: Deploy Trap ==="
 read -p "Enter your DROSERA_PRIVATE_KEY (hex, no 0x prefix): " DROSERA_PRIVATE_KEY
-read -p "Enter your Ethereum RPC URL (e.g. Holesky): " ETH_RPC_URL
+read -p "Enter your Ethereum RPC URL (e.g. Hoodi): " ETH_RPC_URL
 
-DROSERA_PRIVATE_KEY="$DROSERA_PRIVATE_KEY" drosera apply --eth-rpc-url "$ETH_RPC_URL"
+echo "=== Step 8: Privacy Settings ==="
+read -p "Do you want your trap to be private? (y/N): " PRIVATE_TRAP
+if [[ "$PRIVATE_TRAP" =~ ^[Yy]$ ]]; then
+  echo "🔒 Setting trap as private..."
 
-echo "=== Step 8: Existing User Trap Address Setup (optional) ==="
-read -p "Are you an existing user needing to add trap address? (y/N): " EXISTING_USER
-if [[ "$EXISTING_USER" =~ ^[Yy]$ ]]; then
-  read -p "Enter your TRAP_ADDRESS (0x...): " TRAP_ADDRESS
+  # Add only if not already present
+  grep -q "private_trap" drosera.toml || sed -i '/\[traps.mytrap\]/a private_trap = true' drosera.toml
+
   read -p "Enter your whitelist operator addresses separated by commas (Operator1_Address,Operator2_Address,...): " WHITELIST
-  echo "" >> drosera.toml
-  echo "address = \"$TRAP_ADDRESS\"" >> drosera.toml
   IFS=',' read -ra ADDRS <<< "$WHITELIST"
-  printf 'whitelist = [\n' >> drosera.toml
-  for addr in "${ADDRS[@]}"; do
-    printf '  "%s",\n' "$addr" >> drosera.toml
-  done
-  printf ']\n' >> drosera.toml
 
-  DROSERA_PRIVATE_KEY="$DROSERA_PRIVATE_KEY" drosera apply --eth-rpc-url "$ETH_RPC_URL"
+  # Remove old whitelist first if exists
+  sed -i '/whitelist = \[/,/]/d' drosera.toml
+
+  echo "Creating whitelist..."
+  echo "whitelist = [" > whitelist.tmp
+  for addr in "${ADDRS[@]}"; do
+    echo "  \"$addr\"," >> whitelist.tmp
+  done
+  echo "]" >> whitelist.tmp
+
+  sed -i "/\[traps.mytrap\]/r whitelist.tmp" drosera.toml
+  rm whitelist.tmp
 fi
 
-echo "=== Step 9: Check Trap on Dashboard ==="
-echo "Visit https://app.drosera.io/ and connect your Drosera EVM wallet."
-echo "Click on 'Traps Owned' or search your Trap address."
+echo "=== Deploying Trap... ==="
+DROSERA_PRIVATE_KEY="$DROSERA_PRIVATE_KEY" drosera apply --eth-rpc-url "$ETH_RPC_URL"
 
-echo "=== Step 10: Bloom Boost Trap ==="
-echo "Open your Trap on Dashboard and click 'Send Bloom Boost' to deposit some Holesky ETH."
+echo "=== Step 9: Bloom Boost Trap ==="
+echo "Visit https://app.drosera.io/"
+echo "Click 'Send Bloom Boost' to deposit Hoodi ETH."
 
-echo "=== Step 11: Fetch Blocks (dryrun) ==="
-drosera dryrun
-
-echo "=== Setup Complete ==="
+echo "=== Step 10: Done. Uchiha Saint Approves. 🔺"
