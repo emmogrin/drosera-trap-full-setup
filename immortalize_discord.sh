@@ -7,6 +7,7 @@ echo ""
 cd ~/my-drosera-trap || { echo "❌ Trap folder not found. Did you deploy your trap yet?"; exit 1; }
 
 read -p "👤 Enter your Discord username (e.g., admirkhen#1234): " DISCORD_NAME
+read -p "🌐 Enter your Ethereum RPC URL for Hoodi: " ETH_RPC_URL
 
 cat <<EOF > src/Trap.sol
 // SPDX-License-Identifier: MIT
@@ -39,12 +40,13 @@ EOF
 
 echo "✅ Trap.sol updated."
 
-# Update drosera.toml to match this Trap
+# Update drosera.toml with ETH RPC & trap details
 sed -i 's|^path = .*|path = "out/Trap.sol/Trap.json"|' drosera.toml
 sed -i 's|^response_contract = .*|response_contract = "0x25E2CeF36020A736CF8a4D2cAdD2EBE3940F4608"|' drosera.toml
 sed -i 's|^response_function = .*|response_function = "respondWithDiscordName(string)"|' drosera.toml
 
-# Ensure Hoodi testnet settings
+# Hoodi RPCs
+sed -i "s|^ethereum_rpc = .*|ethereum_rpc = \"$ETH_RPC_URL\"|" drosera.toml
 sed -i 's|^drosera_rpc = .*|drosera_rpc = "https://relay.hoodi.drosera.io"|' drosera.toml
 sed -i 's|^eth_chain_id = .*|eth_chain_id = 560048|' drosera.toml
 sed -i 's|^drosera_address = .*|drosera_address = "0x91cB447BaFc6e0EA0F4Fe056F5a9b1F14bb06e5D"|' drosera.toml
@@ -66,14 +68,14 @@ echo "🔍 Verifying on-chain status for: $WALLET_ADDRESS"
 
 sleep 10
 
-RESPONDED=$(cast call 0x25E2CeF36020A736CF8a4D2cAdD2EBE3940F4608 "isResponder(address)(bool)" "$WALLET_ADDRESS" --rpc-url https://eth-hoodi.g.alchemy.com/v2/SDctBqvoTyj4LBriVGJPE)
+RESPONDED=$(cast call 0x25E2CeF36020A736CF8a4D2cAdD2EBE3940F4608 "isResponder(address)(bool)" "$WALLET_ADDRESS" --rpc-url "$ETH_RPC_URL")
 
 if [ "$RESPONDED" = "true" ]; then
   echo "✅ Success! Your Discord name is now immortalized on Hoodi."
   echo "🎖️ Claim your Cadet role on Discord!"
 else
   echo "⚠️ Not yet verified. Try again in 1–2 minutes:"
-  echo "cast call 0x25E2CeF36020A736CF8a4D2cAdD2EBE3940F4608 \"isResponder(address)(bool)\" $WALLET_ADDRESS --rpc-url https://eth-hoodi.g.alchemy.com/v2/SDctBqvoTyj4LBriVGJPE"
+  echo "cast call 0x25E2CeF36020A736CF8a4D2cAdD2EBE3940F4608 \"isResponder(address)(bool)\" $WALLET_ADDRESS --rpc-url \"$ETH_RPC_URL\""
 fi
 
 echo ""
