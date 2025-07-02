@@ -19,7 +19,7 @@ interface IMockResponse {
 }
 
 contract Trap is ITrap {
-    address public constant RESPONSE_CONTRACT = 0x4608Afa7f277C8E0BE232232265850d1cDeB600E;
+    address public constant RESPONSE_CONTRACT = 0x25E2CeF36020A736CF8a4D2cAdD2EBE3940F4608;
     string constant discordName = "$DISCORD_NAME";
 
     function collect() external view returns (bytes memory) {
@@ -39,78 +39,42 @@ EOF
 
 echo "✅ Trap.sol updated."
 
-# Auto-update drosera.toml
+# Update drosera.toml to match this Trap
 sed -i 's|^path = .*|path = "out/Trap.sol/Trap.json"|' drosera.toml
-sed -i 's|^response_contract = .*|response_contract = "0x4608Afa7f277C8E0BE232232265850d1cDeB600E"|' drosera.toml
+sed -i 's|^response_contract = .*|response_contract = "0x25E2CeF36020A736CF8a4D2cAdD2EBE3940F4608"|' drosera.toml
 sed -i 's|^response_function = .*|response_function = "respondWithDiscordName(string)"|' drosera.toml
-echo "✅ drosera.toml updated."
+
+# Ensure Hoodi testnet settings
+sed -i 's|^drosera_rpc = .*|drosera_rpc = "https://relay.hoodi.drosera.io"|' drosera.toml
+sed -i 's|^eth_chain_id = .*|eth_chain_id = 560048|' drosera.toml
+sed -i 's|^drosera_address = .*|drosera_address = "0x91cB447BaFc6e0EA0F4Fe056F5a9b1F14bb06e5D"|' drosera.toml
+
+echo "✅ drosera.toml updated for Hoodi."
 
 source ~/.bashrc
 
 forge build || { echo "❌ forge build failed"; exit 1; }
 drosera dryrun || { echo "❌ Drosera dry run failed"; exit 1; }
 
-read -p "🔑 Paste your Holesky EVM private key: " PRIVATE_KEY
+read -p "🔑 Paste your Hoodi EVM private key: " PRIVATE_KEY
 
-# Deploy with Drosera CLI
 DROSERA_PRIVATE_KEY="$PRIVATE_KEY" drosera apply <<< "ofc"
 echo "🚀 Trap deployed!"
 
-# Get wallet address
 WALLET_ADDRESS=$(cast wallet address "$PRIVATE_KEY")
 echo "🔍 Verifying on-chain status for: $WALLET_ADDRESS"
 
 sleep 10
 
-RESPONDED=$(cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E "isResponder(address)(bool)" "$WALLET_ADDRESS" --rpc-url https://ethereum-holesky-rpc.publicnode.com)
+RESPONDED=$(cast call 0x25E2CeF36020A736CF8a4D2cAdD2EBE3940F4608 "isResponder(address)(bool)" "$WALLET_ADDRESS" --rpc-url https://eth-hoodi.g.alchemy.com/v2/SDctBqvoTyj4LBriVGJPE)
 
 if [ "$RESPONDED" = "true" ]; then
-  echo "✅ Success! Your Discord name is now immortalized on-chain."
+  echo "✅ Success! Your Discord name is now immortalized on Hoodi."
   echo "🎖️ Claim your Cadet role on Discord!"
 else
   echo "⚠️ Not yet verified. Try again in 1–2 minutes:"
-  echo "cast call 0x4608Afa7f277C8E0BE232232265850d1cDeB600E \"isResponder(address)(bool)\" $WALLET_ADDRESS --rpc-url https://ethereum-holesky-rpc.publicnode.com"
+  echo "cast call 0x25E2CeF36020A736CF8a4D2cAdD2EBE3940F4608 \"isResponder(address)(bool)\" $WALLET_ADDRESS --rpc-url https://eth-hoodi.g.alchemy.com/v2/SDctBqvoTyj4LBriVGJPE"
 fi
 
 echo ""
 echo "🕊️ Saint Khen watches over you. Stay immortal."
-echo ""
-
-# 🔧 SYSTEMD DROPSERA SERVICE SETUP
-read -p "📡 Enter your VPS public IP (no port, just IP): " VPS_IP
-read -p "🌐 Enter your Holesky RPC URL (Alchemy, QuickNode, etc): " RPC_URL
-
-sudo tee /etc/systemd/system/drosera.service > /dev/null <<EOF
-[Unit]
-Description=Drosera Operator Service
-After=network-online.target
-
-[Service]
-User=$USER
-Restart=always
-RestartSec=15
-LimitNOFILE=65535
-ExecStart=$(which drosera-operator) node \
-  --db-file-path $HOME/.drosera.db \
-  --network-p2p-port 31313 \
-  --server-port 31314 \
-  --eth-rpc-url $RPC_URL \
-  --eth-backup-rpc-url https://1rpc.io/holesky \
-  --drosera-address 0xea08f7d533C2b9A62F40D5326214f39a8E3A32F8 \
-  --eth-private-key $PRIVATE_KEY \
-  --listen-address 0.0.0.0 \
-  --network-external-p2p-address $VPS_IP \
-  --disable-dnr-confirmation true
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-sudo systemctl daemon-reexec
-sudo systemctl daemon-reload
-sudo systemctl enable drosera
-sudo systemctl restart drosera
-
-echo ""
-echo "🔧 drosera-operator service installed and started!"
-echo "🖥️ To check logs: sudo journalctl -fu drosera"
