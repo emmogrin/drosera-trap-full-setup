@@ -7,7 +7,7 @@
 echo "==========================================="
 echo "   🚀 DROSERA HOODI VPS/PC TRAP FULL AUTO-SETUP 🚀"
 echo "==========================================="
-echo "   🧡SAINT KHEN @admirkhen on X"
+echo "   🧡 SAINT KHEN @admirkhen on X"
 echo "==========================================="
 
 sleep 1
@@ -15,8 +15,13 @@ sleep 1
 echo "👉 Updating system..."
 sudo apt-get update && sudo apt-get upgrade -y
 
-echo "👉 Installing dependencies..."
-sudo apt install curl ufw iptables build-essential git wget lz4 jq make gcc nano automake autoconf tmux htop nvme-cli libgbm1 pkg-config libssl-dev libleveldb-dev tar clang bsdmainutils ncdu unzip -y
+echo "👉 Purging & reinstalling curl..."
+sudo apt-get remove --purge -y curl || true
+sudo apt-get update
+sudo apt-get install -y curl
+
+echo "👉 Installing other dependencies..."
+sudo apt-get install -y ufw iptables build-essential git wget lz4 jq make gcc nano automake autoconf tmux htop nvme-cli libgbm1 pkg-config libssl-dev libleveldb-dev tar clang bsdmainutils ncdu unzip
 
 echo "👉 Installing Drosera CLI..."
 curl -L https://app.drosera.io/install | bash
