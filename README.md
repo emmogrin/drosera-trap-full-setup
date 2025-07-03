@@ -122,7 +122,12 @@ Your Discord username (e.g. admirkhen#1234)
 
 Same private key
 
-Your Hoodi RPC URL
+Your Hoodi RPC URL (You can also use this below)
+```
+https://ethereum-hoodi-rpc.publicnode.com
+
+```
+
 
 
 ✅ You’re immortal! Claim your Cadet Role.
