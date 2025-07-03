@@ -23,6 +23,10 @@ Everything you need to first:
 
 ✅️ Get HOODI RPC_URL [Alchemy Dashboard](https://dashboard.alchemy.com/apps/x3e15w6dbehw92s1/networks)
 
+OR use the PUBLIC RPC:
+```
+https://ethereum-hoodi-rpc.publicnode.com
+```
 🏅 Comment understand this post on Twitter for free hoodi eth (giveaway)
 ---
 
