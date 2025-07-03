@@ -91,6 +91,13 @@ Your Trap address
 
 🔒 This sets up the systemd service for auto-start.
 
+if you don't see green ticks on your liveness dashboard (enter this)
+```
+sudo systemctl daemon-reload
+sudo systemctl restart drosera
+sudo journalctl -u drosera -f
+```
+
 
 ---
 
