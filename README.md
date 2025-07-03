@@ -21,6 +21,8 @@ Everything you need to first:
 
 📌 Get your local IP(Ipv4) this is for those running locally[Check your public IP here](https://whatismyipaddress.com/)
 
+✅️ Get HOODI RPC_URL [Alchemy Dashboard](https://dashboard.alchemy.com/apps/x3e15w6dbehw92s1/networks)
+
 🏅 Comment understand this post on Twitter for free hoodi eth (giveaway)
 ---
 
