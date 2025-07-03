@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 echo "============================================"
-echo "    🪲 Drosera Operator VPS Setup Script"
+echo "    🪲 Drosera Operator VPS/PC Setup Script"
 echo "============================================"
 echo ""
 
