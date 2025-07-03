@@ -11,17 +11,18 @@ Claim your Cadet role and rise through the Drosera ranks. 🗡️
 
 ---
 
-🧱 What’s Inside?
+🧱 What’s to do before proceeding?
 
-Everything you need to:
+Everything you need to first:
 
-📌 Deploy your first Trap (Hoodi)
+📌 Get faucet 🪙 **Get free Hoodi ETH:** [QuickNode Faucet](https://faucet.quicknode.com/ethereum/hoodi/)
 
-📌 Setup your Drosera Operator on VPS/PC
+📌 **Add Hoodi Testnet to your wallet:** [Chainlist.org](https://chainlist.org/)
 
-📌 Immortalize your Discord username on-chain
+📌 Get your local IP(Ipv4) this is for those running locally[Check your public IP here](https://whatismyipaddress.com/)
 
-🏅 Earn your Cadet Rank
+🏅 Comment understand this post on Twitter for free hoodi eth (giveaway)
+---
 
 
 ---
@@ -73,6 +74,8 @@ Your Ethereum Hoodi RPC URL
 
 ✅ Bloomboost your Trap on https://app.drosera.io if needed.
 
+😑 Always copy the trap address as indicated below because you'll need it for the next phase
+[![IMG-20250703-WA0005.jpg](https://i.postimg.cc/8cB6jc8g/IMG-20250703-WA0005.jpg)](https://postimg.cc/zHvBQJXx)
 
 ---
 
@@ -84,9 +87,11 @@ Your Ethereum Hoodi RPC URL
 
 Your same EVM private key
 
-Your VPS public IP
+Your VPS public IP 
 
 Your Trap address
+
+If you run locally get your IP from copy the Ipv4 [Check your public IP here](https://whatismyipaddress.com/)
 
 
 🔒 This sets up the systemd service for auto-start.
@@ -125,12 +130,24 @@ source ~/.bashrc
 ```
 ```
 cast call 0x25E2CeF36020A736CF8a4D2cAdD2EBE3940F4608 \
-"isResponder(address)(bool)" \
-0xYOURWALLETADDRESS \
+"getDiscordNamesBatch(uint256,uint256)(string[])" \
+0 2000 \
 --rpc-url https://ethereum-hoodi-rpc.publicnode.com/
+```
+You should see your username among the output.
+[![IMG-20250703-WA0006.jpg](https://i.postimg.cc/76WsS3x8/IMG-20250703-WA0006.jpg)](https://postimg.cc/TLnJ6WLC)
 
+if incase it gives an error try this and enter the cast code again.
+```
+curl -L https://foundry.paradigm.xyz | bash
+source ~/.bashrc
+foundryup
 ```
 ---
+Do this to check general node logs:
+```
+sudo journalctl -u drosera -f
+```
 
 💡 Tips
 
