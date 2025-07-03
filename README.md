@@ -45,6 +45,8 @@ Everything you need to:
 
 ```bash
 sudo apt update && sudo apt install -y git
+```
+```
 git clone https://github.com/emmogrin/drosera-trap-full-setup.git
 cd drosera-trap-full-setup
 chmod +x *.sh
