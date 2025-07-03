@@ -17,7 +17,7 @@ Everything you need to first:
 
 📌 Get faucet 🪙 **Get free Hoodi ETH:** [QuickNode Faucet](https://faucet.quicknode.com/ethereum/hoodi/)
 
-📌 **Add Hoodi Testnet to your wallet:** [Chainlist.org](https://chainlist.org/)
+📌 **Add Hoodi Testnet to your wallet:** [Chainlist.org](https://chainlist.org/) [tick the include testnet box, and search hoodi.
 
 📌 Get your local IP(Ipv4) this is for those running locally[Check your public IP here](https://whatismyipaddress.com/)
 
